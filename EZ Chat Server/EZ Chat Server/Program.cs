@@ -10,7 +10,6 @@ namespace EZChatServer
     class TcpChatServer
     {
         public static TcpChatServer chat;
-
         private TcpListener listener;
 
         // types of clients connected

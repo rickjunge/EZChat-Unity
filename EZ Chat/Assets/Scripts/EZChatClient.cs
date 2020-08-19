@@ -15,10 +15,12 @@ public class EZChatClient : MonoBehaviour
     public int minSecondsBetweenMessages = 2;
     private bool canSendMessage = true;
     private InputField EZChatInputField;
+    private InputField EZChatOutputField;
     // Start is called before the first frame update
     void Start()
     {
         EZChatInputField = GameObject.Find("EZChatInputField").GetComponent<InputField>();
+        EZChatOutputField = GameObject.Find("EZChatOutputField").GetComponent<InputField>();
         // Create a non-connected TcpClient
         client = new TcpClient
         {
@@ -103,9 +105,14 @@ public class EZChatClient : MonoBehaviour
                 // Decode it and print it
                 string msg = Encoding.UTF8.GetString(msgBuffer);
                 Debug.Log(msg);
+                ShowMessage(msg);
             }
     }
 
+    public void ShowMessage(string msg)
+    {
+        EZChatOutputField.text += Environment.NewLine + msg;
+    }
 
     // Cleanup network ressources
     private void _cleanupNetworkResources()
