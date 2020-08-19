@@ -1,0 +1,6 @@
+E:\EZ Chat Server\EZ Chat Server\bin\Debug\EZ Chat Server.exe.config
+E:\EZ Chat Server\EZ Chat Server\bin\Debug\EZ Chat Server.exe
+E:\EZ Chat Server\EZ Chat Server\bin\Debug\EZ Chat Server.pdb
+E:\EZ Chat Server\EZ Chat Server\obj\Debug\EZ Chat Server.csprojAssemblyReference.cache
+E:\EZ Chat Server\EZ Chat Server\obj\Debug\EZ Chat Server.exe
+E:\EZ Chat Server\EZ Chat Server\obj\Debug\EZ Chat Server.pdb
