@@ -12,30 +12,24 @@ namespace EZChatServer
         public static TcpChatServer chat;
         private TcpListener listener;
 
-        // types of clients connected
-        private List<TcpClient> viewers = new List<TcpClient>();
-        private List<TcpClient> messengers = new List<TcpClient>();
-
-        // Names that are taken by other messengers
+        private List<TcpClient> clients = new List<TcpClient>();
         private Dictionary<TcpClient, string> names = new Dictionary<TcpClient, string>();
 
-        // Messages that need to be sent
         private Queue<string> messageQueue = new Queue<string>();
 
-        // Extra fun data
         public readonly string ChatName;
         public readonly int Port;
+        public readonly bool SendConnectMessage;
         public bool Running { get; private set; }
-
-        // Buffer
         public readonly int BufferSize = 2 * 1024;  // 2KB
 
         // Make a new TCP chat server, with our provided name
-        public TcpChatServer(string chatName, int port)
+        public TcpChatServer(string chatName, int port, bool sendConnectMessage)
         {
             // Set the basic data
             ChatName = chatName;
             Port = port;
+            SendConnectMessage = sendConnectMessage;
             Running = false;
 
             // Initialize new listener. Change the first variable to your public IP Adress, when testing is done.
@@ -51,7 +45,7 @@ namespace EZChatServer
 
         public void Run()
         {
-            Console.WriteLine("Starting the \"{0}\" EZ Chat Server on Port {1}.", ChatName, Port);
+            Console.WriteLine("Starting the \"{0}\" Server on Port {1}.", ChatName, Port);
             Console.WriteLine("Press Ctrl-C to shut down the server.");
 
             listener.Start();
@@ -73,10 +67,7 @@ namespace EZChatServer
                 Thread.Sleep(10);
             }
 
-            // Stop the server and clean up any connected clients
-            foreach (TcpClient v in viewers)
-                _cleanupClient(v);
-            foreach (TcpClient m in messengers)
+            foreach (TcpClient m in clients)
                 _cleanupClient(m);
             listener.Stop();
 
@@ -108,92 +99,72 @@ namespace EZChatServer
                 string msg = Encoding.UTF8.GetString(msgBuffer, 0, bytesRead);
                 if (msg.StartsWith("name:"))
                 {
-                    // Okay, so they might be a messenger
+                    // get client name
                     string name = msg.Substring(msg.IndexOf(':') + 1);
 
                     if ((name != string.Empty) && (!names.ContainsValue(name)))
                     {
-                        // They're new here, add them in
+                        //name is good, add to list
                         good = true;
                         names.Add(newClient, name);
-                        viewers.Add(newClient);
-                        messengers.Add(newClient);
+                        clients.Add(newClient);
 
-                        Console.WriteLine("{0} is a Messenger with the name {1}.", endPoint, name);
+                        Console.WriteLine("{0} joined with the name {1}.", endPoint, name);
 
-                        // Tell the viewers we have a new messenger
-                        messageQueue.Enqueue(String.Format("{0} has joined the chat.", name));
+                        // tell chat about new client
+                        if (SendConnectMessage)
+                            messageQueue.Enqueue(String.Format("{0} has joined the chat.", name));
                     }
                 }
                 else
                 {
-                    // Wasn't either a viewer or messenger, clean up anyways.
+                    // weird message, scriptkid?
                     Console.WriteLine("Wasn't able to identify {0} as a Viewer or Messenger.", endPoint);
                     _cleanupClient(newClient);
                 }
             }
 
-            // Do we really want them?
             if (!good)
                 newClient.Close();
         }
 
-        // Sees if any of the clients have left the chat server
         private void _checkForDisconnects()
         {
-            // Check the viewers first
-            foreach (TcpClient v in viewers.ToArray())
+            foreach (TcpClient c in clients.ToArray())
             {
-                if (_isDisconnected(v))
+                if (_isDisconnected(c))
                 {
-                    //Console.WriteLine("Viewer {0} has left.", v.Client.RemoteEndPoint);
+                    string name = names[c];
 
-                    // cleanup on our end
-                    viewers.Remove(v);     // Remove from list
-                    _cleanupClient(v);
-                }
-            }
-
-            // Check the messengers second
-            foreach (TcpClient m in messengers.ToArray())
-            {
-                if (_isDisconnected(m))
-                {
-                    // Get info about the messenger
-                    string name = names[m];
-
-                    // Tell the viewers someone has left
-                    Console.WriteLine("Messeger {0} has left.", name);
+                    Console.WriteLine("Client {0} has left.", name);
                     messageQueue.Enqueue(String.Format("{0} has left the chat", name));
 
-                    // clean up on our end 
-                    messengers.Remove(m);  // Remove from list
-                    names.Remove(m);       // Remove taken name
-                    _cleanupClient(m);
+                    // cleanup
+                    clients.Remove(c);
+                    names.Remove(c);
+                    _cleanupClient(c);
                 }
             }
         }
 
-        // See if any of our messengers have sent us a new message, put it in the queue
         private void _checkForNewMessages()
         {
-            foreach (TcpClient m in messengers)
+            foreach (TcpClient m in clients)
             {
                 int messageLength = m.Available;
                 if (messageLength > 0)
                 {
-                    // there is one!  get it
+                    // messageLength is not 0, so we got a message
                     byte[] msgBuffer = new byte[messageLength];
-                    m.GetStream().Read(msgBuffer, 0, msgBuffer.Length);     // Blocks
+                    m.GetStream().Read(msgBuffer, 0, msgBuffer.Length);
 
-                    // Attach a name to it and shove it into the queue
+                    // attach name and enqueue
                     string msg = String.Format("{0}: {1}", names[m], Encoding.UTF8.GetString(msgBuffer));
                     messageQueue.Enqueue(msg);
                 }
             }
         }
 
-        // Clears out the message queue (and sends it to all of the viewers
         private void _sendMessages()
         {
             foreach (string msg in messageQueue)
@@ -201,20 +172,17 @@ namespace EZChatServer
                 // Encode the message
                 byte[] msgBuffer = Encoding.UTF8.GetBytes(msg);
 
-                // Send the message to each viewer
-                foreach (TcpClient v in viewers)
+                // Send the message to each client
+                foreach (TcpClient c in clients)
                 {
-                    if (v.Connected)
-                        v.GetStream().Write(msgBuffer, 0, msgBuffer.Length);    // Blocks
+                    if (c.Connected)
+                        c.GetStream().Write(msgBuffer, 0, msgBuffer.Length);
                 }
             }
-
             // clear out the queue
             messageQueue.Clear();
         }
 
-        // Checks if a socket has disconnected
-        // Adapted from -- http://stackoverflow.com/questions/722240/instantly-detect-client-disconnection-from-server-socket
         private static bool _isDisconnected(TcpClient client)
         {
             try
@@ -222,20 +190,23 @@ namespace EZChatServer
                 Socket s = client.Client;
                 return s.Poll(10 * 1000, SelectMode.SelectRead) && (s.Available == 0);
             }
+#pragma warning disable CS0168 // Variable ist deklariert, wird jedoch niemals verwendet
             catch (Exception e)
+#pragma warning restore CS0168 // Variable ist deklariert, wird jedoch niemals verwendet
             {
-                // We got a socket error, assume it's disconnected
+                // We got a socket or disposedObject error, assume it's disconnected
+                // whatever it is, cant reach client
                 return true;
             }
         }
 
-        // cleans up resources for a TcpClient
         private static void _cleanupClient(TcpClient client)
         {
+            // close client and network stream
             if (!client.Connected)
                 return;
-            client.GetStream().Close();     // Close network stream
-            client.Close();                 // Close client
+            client.GetStream().Close();
+            client.Close();
         }
 
         protected static void InterruptHandler(object sender, ConsoleCancelEventArgs args)
@@ -246,15 +217,18 @@ namespace EZChatServer
 
         public static void Main(string[] args)
         {
-            // Create the server
-            string name = "EZChat";//args[0].Trim();
-            int port = 6000;
-            chat = new TcpChatServer(name, port);
+            //load config
+            ConfigHandler.LoadConfig(   out string name, 
+                                        out int port, 
+                                        out bool sendConnectMessage);
 
-            // Close Server if user presses Ctrl+C
+            //create new chat server
+            chat = new TcpChatServer(name, port, sendConnectMessage);
+
+            // close server shortcut
             Console.CancelKeyPress += InterruptHandler;
 
-            // run the chat server
+            // run the server
             chat.Run();
         }
     }

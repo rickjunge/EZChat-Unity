@@ -6,6 +6,7 @@ using System.Threading;
 using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
 public class EZChatClient : MonoBehaviour
 {
@@ -16,11 +17,15 @@ public class EZChatClient : MonoBehaviour
     private bool canSendMessage = true;
     private InputField EZChatInputField;
     private InputField EZChatOutputField;
+    private GameObject EZChatClientPanel;
+    [SerializeField]
+    public KeyCode openChatKey;
     // Start is called before the first frame update
     void Start()
     {
         EZChatInputField = GameObject.Find("EZChatInputField").GetComponent<InputField>();
         EZChatOutputField = GameObject.Find("EZChatOutputField").GetComponent<InputField>();
+        EZChatClientPanel = GameObject.Find("EZChatClientPanel");
         // Create a non-connected TcpClient
         client = new TcpClient
         {
@@ -35,6 +40,15 @@ public class EZChatClient : MonoBehaviour
     public void Update()
     {
         ListenForMessages();
+        CheckInputs();
+    }
+
+    void CheckInputs()
+    {
+        if (Input.GetKeyDown(openChatKey) && EventSystem.current.currentSelectedGameObject != EZChatInputField.gameObject)
+        {
+            EZChatClientPanel.SetActive(!EZChatClientPanel.activeSelf);
+        }
     }
 
     private TcpClient client;
@@ -53,10 +67,7 @@ public class EZChatClient : MonoBehaviour
         // Make sure we're connected
         if (client.Connected)
         {
-            // Got in!
-            Debug.Log("Connected to the server at " + endPoint);
-
-            // Tell them that we're a messenger
+            // we are connected, send message to verify.
             msgStream = client.GetStream();
             byte[] msgBuffer = Encoding.UTF8.GetBytes(String.Format("name:{0}", clientName));
             msgStream.Write(msgBuffer, 0, msgBuffer.Length);   // Blocks
@@ -64,7 +75,7 @@ public class EZChatClient : MonoBehaviour
         else
         {
             _cleanupNetworkResources();
-            Debug.LogError("Wasn't able to connect to the server " + endPoint);
+            Debug.LogError("Could not connect to the server " + endPoint);
         }
     }
     
@@ -93,7 +104,7 @@ public class EZChatClient : MonoBehaviour
 
     public void ListenForMessages()
     {
-            // Do we have a new message?
+            // check for new messages
             int messageLength = client.Available;
             if (messageLength > 0)
             {
@@ -104,7 +115,6 @@ public class EZChatClient : MonoBehaviour
 
                 // Decode it and print it
                 string msg = Encoding.UTF8.GetString(msgBuffer);
-                Debug.Log(msg);
                 ShowMessage(msg);
             }
     }
@@ -114,27 +124,11 @@ public class EZChatClient : MonoBehaviour
         EZChatOutputField.text += Environment.NewLine + msg;
     }
 
-    // Cleanup network ressources
+    // Cleanup network resources
     private void _cleanupNetworkResources()
     {
         msgStream?.Close();
         msgStream = null;
         client.Close();
-    }
-
-    // Checks if a socket has disconnected
-    // Adapted from -- http://stackoverflow.com/questions/722240/instantly-detect-client-disconnection-from-server-socket
-    private static bool _isDisconnected(TcpClient client)
-    {
-        try
-        {
-            Socket s = client.Client;
-            return s.Poll(10 * 1000, SelectMode.SelectRead) && (s.Available == 0);
-        }
-        catch (SocketException e)
-        {
-            Debug.Log(e);
-            return true;
-        }
     }
 }

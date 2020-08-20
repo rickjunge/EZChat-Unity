@@ -1,0 +1,5 @@
+{
+"name": "EZChat",
+"port": 6000,
+"sendConnectMessage": true
+}

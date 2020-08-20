@@ -10,3 +10,6 @@ E:\EZChat\EZChat-Unity\EZ Chat Server\EZ Chat Server\bin\Debug\EZ Chat Server.pd
 E:\EZChat\EZChat-Unity\EZ Chat Server\EZ Chat Server\obj\Debug\EZ Chat Server.csprojAssemblyReference.cache
 E:\EZChat\EZChat-Unity\EZ Chat Server\EZ Chat Server\obj\Debug\EZ Chat Server.exe
 E:\EZChat\EZChat-Unity\EZ Chat Server\EZ Chat Server\obj\Debug\EZ Chat Server.pdb
+E:\EZChat\EZChat-Unity\EZ Chat Server\EZ Chat Server\bin\Debug\Newtonsoft.Json.dll
+E:\EZChat\EZChat-Unity\EZ Chat Server\EZ Chat Server\bin\Debug\Newtonsoft.Json.xml
+E:\EZChat\EZChat-Unity\EZ Chat Server\EZ Chat Server\obj\Debug\EZ Chat Server.csproj.CopyComplete
