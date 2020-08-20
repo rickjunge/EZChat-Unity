@@ -1,6 +1,6 @@
-# Project Title
+# EZChat-Unity
 
-One Paragraph of project description goes here
+This asset allows you to simply create a TCP-chat in the unity engine.
 
 ## Getting Started
 
@@ -8,80 +8,58 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Prerequisites
 
-What things you need to install the software and how to install them
+What things you need to use the software
 
 ```
-Give examples
+Unity-Engine
 ```
 
 ### Installing
 
-A step by step series of examples that tell you how to get a development env running
+This is how you can set up the Project. You can skip step 2 and step 3, if you want to host the server on localhost and stick with the standard settings.
 
-Say what the step will be
+1. Clone/download the project. Make sure you have got the folders "EZ Chat" and "EZ Chat Server"
 
-```
-Give the example
-```
-
-And repeat
+2. Go to folder "EZ Chat Server\EZ Chat Server\bin\Release" and open the "config.json" with any text editor.
+	It should look like this:
 
 ```
-until finished
+{
+"host": "127.0.0.1",
+"port": 6000,
+"name": "EZChat",
+"sendConnectMessage": true
+}
 ```
 
-End with an example of getting some data out of the system or using it for a little demo
+3. Edit the config.json. You must provide valid options for:
+	- Host 
+	- Port
+	- Name
+	- Send a connect Message, if a new client connects?
+	
+4. Import your "EZ Chat" project into Unity and open it.
 
-## Running the tests
+5. Open the "EZChatExampleScene" in your "Scenes"-folder.
 
-Explain how to run the automated tests for this system
+6. Select the GameObject "EZChatClient" and edit the values on the "EZChatClient"-Component. Make sure you a name, the correct host and port. In the example above host is "localhost" and port is "6000".
 
-### Break down into end to end tests
+7. Start your server from Visual-Studio or execute the "EZ Chat Server.exe" in folder "EZ Chat Server\EZ Chat Server\bin\Release"
 
-Explain what these tests test and why
-
-```
-Give an example
-```
-
-### And coding style tests
-
-Explain what these tests test and why
+8. Press play in Unity. This message should appear in chat:
 
 ```
-Give an example
+<name> hast joined the chat
 ```
 
-## Deployment
-
-Add additional notes about how to deploy this on a live system
-
-## Built With
-
-* [Dropwizard](http://www.dropwizard.io/1.0.2/docs/) - The web framework used
-* [Maven](https://maven.apache.org/) - Dependency Management
-* [ROME](https://rometools.github.io/rome/) - Used to generate RSS Feeds
-
-## Contributing
-
-Please read [CONTRIBUTING.md](https://gist.github.com/PurpleBooth/b24679402957c63ec426) for details on our code of conduct, and the process for submitting pull requests to us.
-
-## Versioning
-
-We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/your/project/tags). 
+This is how it works. If you have any problems, contact rickjunge0@gmail.com
 
 ## Authors
 
-* **Billie Thompson** - *Initial work* - [PurpleBooth](https://github.com/PurpleBooth)
+* **Rick Junge** - *Initial work* - [PurpleBooth](https://github.com/rickjunge)
 
 See also the list of [contributors](https://github.com/your/project/contributors) who participated in this project.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
-
-## Acknowledgments
-
-* Hat tip to anyone whose code was used
-* Inspiration
-* etc
+No license.

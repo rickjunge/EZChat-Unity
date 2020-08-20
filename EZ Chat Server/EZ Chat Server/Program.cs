@@ -24,7 +24,7 @@ namespace EZChatServer
         public readonly int BufferSize = 2 * 1024;  // 2KB
 
         // Make a new TCP chat server, with our provided name
-        public TcpChatServer(string chatName, int port, bool sendConnectMessage)
+        public TcpChatServer(string host, int port, bool sendConnectMessage, string chatName)
         {
             // Set the basic data
             ChatName = chatName;
@@ -33,7 +33,9 @@ namespace EZChatServer
             Running = false;
 
             // Initialize new listener. Change the first variable to your public IP Adress, when testing is done.
-            listener = new TcpListener(IPAddress.Any, Port);
+            IPAddress addr = IPAddress.Parse(host);
+
+            listener = new TcpListener(addr, Port);
         }
 
         // If the server is running, this will shut down the server
@@ -220,10 +222,11 @@ namespace EZChatServer
             //load config
             ConfigHandler.LoadConfig(   out string name, 
                                         out int port, 
-                                        out bool sendConnectMessage);
+                                        out bool sendConnectMessage,
+                                        out string host);
 
             //create new chat server
-            chat = new TcpChatServer(name, port, sendConnectMessage);
+            chat = new TcpChatServer(host, port, sendConnectMessage, name);
 
             // close server shortcut
             Console.CancelKeyPress += InterruptHandler;
