@@ -26,12 +26,12 @@ public class EZChatClient : MonoBehaviour
         EZChatInputField = GameObject.Find("EZChatInputField").GetComponent<InputField>();
         EZChatOutputField = GameObject.Find("EZChatOutputField").GetComponent<InputField>();
         EZChatClientPanel = GameObject.Find("EZChatClientPanel");
-        // Create a non-connected TcpClient
+        // Create a TcpClient
         client = new TcpClient
         {
             SendBufferSize = BufferSize,
             ReceiveBufferSize = BufferSize
-        };          // Other constructors will start a connection
+        };
 
         // connect
         Connect();
@@ -61,7 +61,7 @@ public class EZChatClient : MonoBehaviour
     public void Connect()
     {
         // Try to connect
-        client.Connect(host, port);       // Will resolve DNS for us; blocks
+        client.Connect(host, port);
         EndPoint endPoint = client.Client.RemoteEndPoint;
 
         // Make sure we're connected

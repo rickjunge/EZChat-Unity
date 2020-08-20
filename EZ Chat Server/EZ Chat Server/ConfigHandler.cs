@@ -20,9 +20,3 @@ namespace EZChatServer
         }
     }
 }
-
-// config reference
-//{
-//"name": "EZChat",
-//"port": 6000
-//}

@@ -42,23 +42,21 @@ This is how you can set up the Project. You can skip step 2 and step 3, if you w
 
 5. Open the "EZChatExampleScene" in your "Scenes"-folder.
 
-6. Select the GameObject "EZChatClient" and edit the values on the "EZChatClient"-Component. Make sure you a name, the correct host and port. In the example above host is "localhost" and port is "6000".
+6. Select the GameObject "EZChatClient" and edit the values on the "EZChatClient"-Component. Make sure you enter a name, the correct host and port. In the example above host is "localhost" and port is "6000".
 
 7. Start your server from Visual-Studio or execute the "EZ Chat Server.exe" in folder "EZ Chat Server\EZ Chat Server\bin\Release"
 
 8. Press play in Unity. This message should appear in chat:
 
 ```
-<name> hast joined the chat
+<name> has joined the chat.
 ```
 
 This is how it works. If you have any problems, contact rickjunge0@gmail.com
 
 ## Authors
 
-* **Rick Junge** - *Initial work* - [PurpleBooth](https://github.com/rickjunge)
-
-See also the list of [contributors](https://github.com/your/project/contributors) who participated in this project.
+* **Rick Junge** - *Initial work* - [rickjunge](https://github.com/rickjunge)
 
 ## License
 

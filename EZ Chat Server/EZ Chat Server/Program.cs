@@ -79,9 +79,9 @@ namespace EZChatServer
 
         private void _handleNewConnection()
         {
-            // There is (at least) one, see what they want
+            // new connection
             bool good = false;
-            TcpClient newClient = listener.AcceptTcpClient();      // Blocks
+            TcpClient newClient = listener.AcceptTcpClient();
             NetworkStream netStream = newClient.GetStream();
 
             // Modify the default buffer sizes
@@ -94,7 +94,7 @@ namespace EZChatServer
 
             // Let them identify themselves
             byte[] msgBuffer = new byte[BufferSize];
-            int bytesRead = netStream.Read(msgBuffer, 0, msgBuffer.Length);     // Blocks
+            int bytesRead = netStream.Read(msgBuffer, 0, msgBuffer.Length);
             //Console.WriteLine("Got {0} bytes.", bytesRead);
             if (bytesRead > 0)
             {
@@ -192,9 +192,9 @@ namespace EZChatServer
                 Socket s = client.Client;
                 return s.Poll(10 * 1000, SelectMode.SelectRead) && (s.Available == 0);
             }
-#pragma warning disable CS0168 // Variable ist deklariert, wird jedoch niemals verwendet
+#pragma warning disable CS0168
             catch (Exception e)
-#pragma warning restore CS0168 // Variable ist deklariert, wird jedoch niemals verwendet
+#pragma warning restore CS0168
             {
                 // We got a socket or disposedObject error, assume it's disconnected
                 // whatever it is, cant reach client
